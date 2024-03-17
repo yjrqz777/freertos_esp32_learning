@@ -16,93 +16,48 @@
 #include "freertos/semphr.h"
 #include "freertos/event_groups.h"
 
-static void print_soc_info();
 
-int icount = 0;
 SemaphoreHandle_t xSemaphore = NULL;
 
 
-void myTask1(void *pvParam)
+void carinTask(void *pvParam)
 {
+    int car_num = 5;
+    BaseType_t xStatus;
     while (1)
     {
+        car_num = uxSemaphoreGetCount(xSemaphore);
+        printf("car_num: %d\n", car_num);
         // ESP_LOGI("myTask1:", "waiting for semaphore");
-        xSemaphoreTake(xSemaphore, portMAX_DELAY);
-        for (int i = 0; i < 10; i++)
-        {
-            printf("Task1: %d\n", icount++);
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
-        }
-        xSemaphoreGive(xSemaphore);
+        xStatus = xSemaphoreTake(xSemaphore, 0);
+        if (xStatus == pdTRUE)
+            printf("car in\n");
+        else
+            printf("car in failed\n");
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
-void myTask2(void *pvParam)
+void carouTask(void *pvParam)
 {
+
     while (1)
     {
-        // ESP_LOGI("myTask2:", "waiting for semaphore");
-        xSemaphoreTake(xSemaphore, portMAX_DELAY);
-        for (int i = 0; i < 10; i++)
-        {
-            printf("Task2: %d\n", icount++);
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
-        }
+        vTaskDelay(pdMS_TO_TICKS(6000));
         xSemaphoreGive(xSemaphore);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        printf("car out\n");
+        // ESP_LOGI("myTask2:", "waiting for semaphore");
     }
 }
 
 void app_main(void)
 {
-    print_soc_info();
-    xSemaphore = xSemaphoreCreateBinary();
+    xSemaphore = xSemaphoreCreateCounting(5, 5);
     xSemaphoreGive(xSemaphore);
-    xTaskCreate(myTask1, "Task1", 2048*5, NULL, 1, NULL);
-    xTaskCreate(myTask2, "Task2", 2048*5, NULL, 1, NULL);
+    xTaskCreate(carinTask, "Task1", 2048*5, NULL, 1, NULL);
+    xTaskCreate(carouTask, "Task2", 2048*5, NULL, 1, NULL);
     while (1)
     {
+        printf("car_num: %d\n", uxSemaphoreGetCount(xSemaphore));
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
-}
-
-
-
-
-
-void print_soc_info()
-{
-    printf("Hello world!\n");
-
-    /* Print chip information */
-    esp_chip_info_t chip_info;
-    uint32_t flash_size;
-    esp_chip_info(&chip_info);
-    printf("This is %s chip with %d CPU core(s), WiFi%s%s, ",
-           CONFIG_IDF_TARGET,
-           chip_info.cores,
-           (chip_info.features & CHIP_FEATURE_BT) ? "/BT" : "",
-           (chip_info.features & CHIP_FEATURE_BLE) ? "/BLE" : "");
-
-    unsigned major_rev = chip_info.revision / 100;
-    unsigned minor_rev = chip_info.revision % 100;
-    printf("silicon revision v%d.%d, ", major_rev, minor_rev);
-    if (esp_flash_get_size(NULL, &flash_size) != ESP_OK)
-    {
-        printf("Get flash size failed");
-        return;
-    }
-
-    printf("%" PRIu32 "MB %s flash\n", flash_size / (uint32_t)(1024 * 1024),
-           (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
-
-    printf("Minimum free heap size: %" PRIu32 " bytes\n", esp_get_minimum_free_heap_size());
-
-    // for (int i = 10; i >= 0; i--) {
-    //     printf("Restarting in %d seconds...\n", i);
-    //     vTaskDelay(1000 / portTICK_PERIOD_MS);
-    // }
-    // printf("Restarting now.\n");
-    // fflush(stdout);
-    // esp_restart();
 }

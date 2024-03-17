@@ -216,7 +216,7 @@ CMAKE_PROJECT_DESCRIPTION:STATIC=
 CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=hello_world
+CMAKE_PROJECT_NAME:STATIC=freertos_esp32_learning
 
 //Path to a program.
 CMAKE_RANLIB:FILEPATH=F:/Espressif/tools/xtensa-esp32-elf/esp-2022r1-11.2.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-ranlib.exe
@@ -339,6 +339,15 @@ esp-idf_IS_TOP_LEVEL:STATIC=OFF
 
 //Value Computed by CMake
 esp-idf_SOURCE_DIR:STATIC=F:/Espressif/frameworks/esp-idf-v5.0.2
+
+//Value Computed by CMake
+freertos_esp32_learning_BINARY_DIR:STATIC=E:/Documents/esp32/code/user/hello_world/build
+
+//Value Computed by CMake
+freertos_esp32_learning_IS_TOP_LEVEL:STATIC=ON
+
+//Value Computed by CMake
+freertos_esp32_learning_SOURCE_DIR:STATIC=E:/Documents/esp32/code/user/hello_world
 
 //Value Computed by CMake
 hello_world_BINARY_DIR:STATIC=E:/Documents/esp32/code/user/hello_world/build

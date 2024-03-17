@@ -9,7 +9,7 @@ E:/Documents/esp32/code/user/hello_world/build/CMakeFiles/monitor.dir
 E:/Documents/esp32/code/user/hello_world/build/CMakeFiles/flash.dir
 E:/Documents/esp32/code/user/hello_world/build/CMakeFiles/encrypted-flash.dir
 E:/Documents/esp32/code/user/hello_world/build/CMakeFiles/_project_elf_src.dir
-E:/Documents/esp32/code/user/hello_world/build/CMakeFiles/hello_world.elf.dir
+E:/Documents/esp32/code/user/hello_world/build/CMakeFiles/freertos_esp32_learning.elf.dir
 E:/Documents/esp32/code/user/hello_world/build/CMakeFiles/size.dir
 E:/Documents/esp32/code/user/hello_world/build/CMakeFiles/size-files.dir
 E:/Documents/esp32/code/user/hello_world/build/CMakeFiles/size-components.dir
