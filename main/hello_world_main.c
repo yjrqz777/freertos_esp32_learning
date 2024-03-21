@@ -16,48 +16,59 @@
 #include "freertos/semphr.h"
 #include "freertos/event_groups.h"
 
-
-SemaphoreHandle_t xSemaphore = NULL;
-
-
-void carinTask(void *pvParam)
+EventGroupHandle_t xCreatedEventGroup;
+#define BIT_0 (1 << 0)
+#define BIT_4 (1 << 4)
+void task1(void *pvParam)
 {
-    int car_num = 5;
-    BaseType_t xStatus;
     while (1)
     {
-        car_num = uxSemaphoreGetCount(xSemaphore);
-        printf("car_num: %d\n", car_num);
-        // ESP_LOGI("myTask1:", "waiting for semaphore");
-        xStatus = xSemaphoreTake(xSemaphore, 0);
-        if (xStatus == pdTRUE)
-            printf("car in\n");
-        else
-            printf("car in failed\n");
-        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        xEventGroupWaitBits(
+            xCreatedEventGroup, /* The event group being tested. */
+            BIT_0 | BIT_4,      /* The bits within the event group to wait for. */
+            pdTRUE,             /* BIT_0 and BIT_4 should be cleared before returning. */
+            pdTRUE,            /* Don't wait for both bits, either bit will do. */
+            portMAX_DELAY);     /* Wait a maximum of 100ms for either bit to be set. */
+        printf("task1 : bit0,bit4\n");
+        // vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
-void carouTask(void *pvParam)
+void task2(void *pvParam)
 {
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
     while (1)
     {
-        vTaskDelay(pdMS_TO_TICKS(6000));
-        xSemaphoreGive(xSemaphore);
-        printf("car out\n");
-        // ESP_LOGI("myTask2:", "waiting for semaphore");
+        printf("task2 : set bit0\n");
+        xEventGroupSetBits(xCreatedEventGroup, BIT_0);
+        vTaskDelay(pdMS_TO_TICKS(5000));
+        printf("task2 : set bit4\n");
+        xEventGroupSetBits(xCreatedEventGroup, BIT_4);
+        vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }
 
 void app_main(void)
 {
-    xSemaphore = xSemaphoreCreateCounting(5, 5);
-    xSemaphoreGive(xSemaphore);
-    xTaskCreate(carinTask, "Task1", 2048*5, NULL, 1, NULL);
-    xTaskCreate(carouTask, "Task2", 2048*5, NULL, 1, NULL);
+    xCreatedEventGroup = xEventGroupCreate();
+    /* Was the event group created successfully? */
+    if (xCreatedEventGroup == NULL)
+    {
+        printf("xCreatedEventGroup fail\n");
+    }
+    else
+    {
+        vTaskSuspendAll();
+        xTaskCreate(task1, "Task1", 2048 * 5, NULL, 1, NULL);
+        xTaskCreate(task2, "Task2", 2048 * 5, NULL, 1, NULL);
+        xTaskResumeAll();
+    }
+    // xSemaphoreGive(xSemaphore);
+
     while (1)
     {
-        printf("car_num: %d\n", uxSemaphoreGetCount(xSemaphore));
+        // printf("car_num: %d\n", uxSemaphoreGetCount(xSemaphore));
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 }
