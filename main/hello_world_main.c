@@ -18,37 +18,66 @@
 
 EventGroupHandle_t xCreatedEventGroup;
 #define BIT_0 (1 << 0)
-#define BIT_4 (1 << 4)
-void task1(void *pvParam)
+#define BIT_1 (1 << 1)
+#define BIT_2 (1 << 2)
+#define ALL_SYNC_TASKS_BIT (BIT_0 | BIT_1 | BIT_2 )
+
+
+
+void task0(void *pvParam)
 {
+
     while (1)
     {
-
-        xEventGroupWaitBits(
+        printf("task0 : \n");
+        vTaskDelay(pdMS_TO_TICKS(1000));
+        printf("task0 :set  bit0\n");
+        xEventGroupSync(
             xCreatedEventGroup, /* The event group being tested. */
-            BIT_0 | BIT_4,      /* The bits within the event group to wait for. */
-            pdTRUE,             /* BIT_0 and BIT_4 should be cleared before returning. */
-            pdTRUE,            /* Don't wait for both bits, either bit will do. */
+            BIT_0 ,      /* The bits within the event group to wait for. */
+            ALL_SYNC_TASKS_BIT,             /* BIT_0 and BIT_4 should be cleared before returning. */
             portMAX_DELAY);     /* Wait a maximum of 100ms for either bit to be set. */
-        printf("task1 : bit0,bit4\n");
-        // vTaskDelay(pdMS_TO_TICKS(1000));
+        printf("ALL_SYNC_TASKS_BIT,task0\n");
+        vTaskDelay(pdMS_TO_TICKS(10000));
     }
+
+}
+void task1(void *pvParam)
+{
+
+    while (1)
+    {
+        printf("task1 : \n");
+        vTaskDelay(pdMS_TO_TICKS(3000));
+        printf("task1 :set  bit1\n");
+        xEventGroupSync(
+            xCreatedEventGroup, /* The event group being tested. */
+            BIT_1,      /* The bits within the event group to wait for. */
+            ALL_SYNC_TASKS_BIT,             /* BIT_0 and BIT_4 should be cleared before returning. */
+            portMAX_DELAY);     /* Wait a maximum of 100ms for either bit to be set. */
+        printf("ALL_SYNC_TASKS_BIT,task1\n");
+        vTaskDelay(pdMS_TO_TICKS(10000));
+    }
+
 }
 void task2(void *pvParam)
 {
-    vTaskDelay(pdMS_TO_TICKS(1000));
 
     while (1)
     {
-        printf("task2 : set bit0\n");
-        xEventGroupSetBits(xCreatedEventGroup, BIT_0);
+        printf("task2 : \n");
         vTaskDelay(pdMS_TO_TICKS(5000));
-        printf("task2 : set bit4\n");
-        xEventGroupSetBits(xCreatedEventGroup, BIT_4);
-        vTaskDelay(pdMS_TO_TICKS(5000));
+        printf("task2 :set  bit2\n");
+        xEventGroupSync(
+            xCreatedEventGroup, /* The event group being tested. */
+            BIT_2,      /* The bits within the event group to wait for. */
+            ALL_SYNC_TASKS_BIT,             /* BIT_0 and BIT_4 should be cleared before returning. */
+            portMAX_DELAY);     /* Wait a maximum of 100ms for either bit to be set. */
+        printf("ALL_SYNC_TASKS_BIT,task2\n");
+        vTaskDelay(pdMS_TO_TICKS(10000));
     }
-}
 
+}
 void app_main(void)
 {
     xCreatedEventGroup = xEventGroupCreate();
@@ -60,7 +89,8 @@ void app_main(void)
     else
     {
         vTaskSuspendAll();
-        xTaskCreate(task1, "Task1", 2048 * 5, NULL, 1, NULL);
+        xTaskCreate(task0, "Task1", 2048 * 5, NULL, 1, NULL);
+        xTaskCreate(task1, "Task2", 2048 * 5, NULL, 1, NULL);
         xTaskCreate(task2, "Task2", 2048 * 5, NULL, 1, NULL);
         xTaskResumeAll();
     }
